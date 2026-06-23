@@ -77,13 +77,3 @@ Navigate to **http://localhost:5173** and log in with `admin` / `hostel123`.
 | GET | `/api/history/dates` | Yes | List archived dates |
 | GET | `/api/history?date=` | Yes | Snapshot for date |
 | POST | `/api/history/archive` | Yes | Archive today |
-
-## Environment Variables
-
-Create `server/.env`:
-```env
-PORT=5001
-MONGO_URI=mongodb://localhost:27017/hostel_attendance
-JWT_SECRET=hostel_super_secret_2026
-JWT_EXPIRES_IN=7d
-```
