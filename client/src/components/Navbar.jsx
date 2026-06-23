@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -22,15 +22,9 @@ const SearchIcon = ({ size = 16 }) => (
   </svg>
 );
 const UserIcon = ({ size = 18 }) => (
-  <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+  <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
-  </svg>
-);
-const LogoutIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-    <polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
   </svg>
 );
 const FilterIcon = ({ size = 16 }) => (
@@ -66,14 +60,10 @@ const MoonIcon = ({ size = 16 }) => (
 
 export default function Navbar({
   searchQuery, onSearchChange,
-  absenteesFilter, onAbsenteesToggle,
   historyMode, onHistoryToggle,
 }) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
-  const navigate = useNavigate();
-
-  const handleLogout = () => { logout(); navigate('/login'); };
 
   return (
     <nav className="navbar">
@@ -108,25 +98,12 @@ export default function Navbar({
         {historyMode ? <BackArrowIcon /> : <CalendarIcon />}
       </button>
 
-      {/* Absentees filter */}
-      {!historyMode && (
-        <button
-          id="btn-absentees-filter"
-          className={`btn btn-ghost ${absenteesFilter ? 'btn-filter-active' : ''}`}
-          style={{ color: absenteesFilter ? 'var(--red)' : 'rgba(255,255,255,0.8)', borderColor: absenteesFilter ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.2)', background: absenteesFilter ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.08)' }}
-          onClick={onAbsenteesToggle}
-          title="Show Absentees"
-        >
-          <FilterIcon />
-          <span className="hidden sm:inline">Absentees</span>
-        </button>
-      )}
+
 
       {/* App name / logo */}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <div style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.15)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>🏠</div>
-        <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
-          Hostel Attendance
+        <span style={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: '1rem', whiteSpace: 'nowrap' }}>
+          HOSTEL ATTENDANCE
         </span>
       </div>
 
@@ -148,11 +125,6 @@ export default function Navbar({
           <UserIcon />
         </button>
       </Link>
-
-      {/* Logout */}
-      <button className="btn-icon" onClick={handleLogout} title="Logout" id="btn-logout">
-        <LogoutIcon />
-      </button>
     </nav>
   );
 }

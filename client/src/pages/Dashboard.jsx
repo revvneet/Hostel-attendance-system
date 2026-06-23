@@ -101,12 +101,66 @@ function FloorRoomGrid({ floorData, onStudentClick, absenteesFilter, searchQuery
   );
 }
 
+// ── Filter Dropdown ─────────────────────────────────────────
+const FilterDropdown = ({ filterMode, setFilterMode, disabled }) => {
+  const [open, setOpen] = useState(false);
+  const options = [
+    { value: 'all', label: 'All Rooms' },
+    { value: 'absentees', label: 'Absentees' },
+    { value: 'single', label: 'Single Rooms' },
+    { value: 'sharing', label: 'Sharing Rooms' }
+  ];
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button 
+        style={{ width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--border)', background: 'var(--card-bg)', borderRadius: '8px', cursor: disabled ? 'not-allowed' : 'pointer', color: filterMode !== 'all' ? 'var(--heading)' : 'var(--muted)', opacity: disabled ? 0.6 : 1 }}
+        onClick={() => !disabled && setOpen(!open)}
+        title="Filter Options"
+      >
+        {open ? (
+          <svg width={18} height={18} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+        ) : (
+          <svg width={18} height={18} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+          </svg>
+        )}
+      </button>
+      
+      {open && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpen(false)} />}
+      
+      <div style={{ 
+        position: 'absolute', top: '100%', right: 0, marginTop: '4px', background: 'var(--card-bg)', 
+        border: '1.5px solid var(--border)', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', 
+        zIndex: 20, minWidth: '150px', overflow: 'hidden',
+        opacity: open ? 1 : 0,
+        visibility: open ? 'visible' : 'hidden',
+        transform: open ? 'translateY(0)' : 'translateY(-10px)',
+        transition: 'all 0.2s ease-in-out'
+      }}>
+        {options.map((opt, i) => (
+          <div 
+            key={opt.value}
+            style={{ padding: '0.75rem 1rem', cursor: 'pointer', fontSize: '0.875rem', fontWeight: filterMode === opt.value ? 600 : 400, color: filterMode === opt.value ? 'var(--heading)' : 'var(--text)', background: filterMode === opt.value ? 'var(--hover-bg)' : 'transparent', borderBottom: i < options.length - 1 ? '1px solid var(--border)' : 'none' }}
+            onClick={() => { setFilterMode(opt.value); setOpen(false); }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--hover-bg)'}
+            onMouseLeave={e => e.currentTarget.style.background = filterMode === opt.value ? 'var(--hover-bg)' : 'transparent'}
+          >
+            {opt.label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ── Main Dashboard ──────────────────────────────────────────
 export default function Dashboard() {
   const [activeFloor, setActiveFloor] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [absenteesFilter, setAbsenteesFilter] = useState(false);
-  const [roomTypeFilter, setRoomTypeFilter] = useState('all');
+  const [filterMode, setFilterMode] = useState('all');
   const [historyMode, setHistoryMode] = useState(false);
   const [selectedHistoryDate, setSelectedHistoryDate] = useState(null);
   const [historyGrouped, setHistoryGrouped] = useState({});
@@ -185,20 +239,44 @@ export default function Dashboard() {
   const handleHistoryToggle = useCallback(() => {
     setHistoryMode(h => !h);
     setSearchQuery('');
-    setAbsenteesFilter(false);
+    setFilterMode('all');
   }, []);
 
   // ── Current data to display ───────────────────────────────
   const displayGrouped = historyMode ? historyGrouped : grouped;
+
+  const handleSearchChange = useCallback((newQuery) => {
+    setSearchQuery(newQuery);
+    if (!newQuery) return;
+    const query = newQuery.toLowerCase();
+
+    const currentFloorData = displayGrouped[activeFloor];
+    if (currentFloorData) {
+      const matchOnCurrent = Object.values(currentFloorData).some(room => 
+        room.roomNo.toLowerCase().includes(query) ||
+        room.students.some(s => s.name.toLowerCase().includes(query))
+      );
+      if (matchOnCurrent) return;
+    }
+
+    for (const [floorStr, floorData] of Object.entries(displayGrouped)) {
+      const match = Object.values(floorData).some(room => 
+        room.roomNo.toLowerCase().includes(query) ||
+        room.students.some(s => s.name.toLowerCase().includes(query))
+      );
+      if (match) {
+        setActiveFloor(Number(floorStr));
+        break;
+      }
+    }
+  }, [activeFloor, displayGrouped]);
 
   // ── Render ────────────────────────────────────────────────
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Navbar
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        absenteesFilter={absenteesFilter}
-        onAbsenteesToggle={() => setAbsenteesFilter(f => !f)}
+        onSearchChange={handleSearchChange}
         historyMode={historyMode}
         onHistoryToggle={handleHistoryToggle}
       />
@@ -219,36 +297,19 @@ export default function Dashboard() {
               <SkeletonGrid />
             ) : (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', justifyContent: 'space-between', paddingRight: '1.25rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <FloorTabs activeFloor={activeFloor} onFloorChange={setActiveFloor} />
-                    <span className="readonly-tag">📖 Read-only</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.25rem', paddingBottom: '0.5rem', alignItems: 'flex-end', height: '100%' }}>
-                    <button 
-                      className={`floor-tab ${roomTypeFilter === 'single' ? 'active' : ''}`}
-                      onClick={() => setRoomTypeFilter(prev => prev === 'single' ? 'all' : 'single')}
-                      style={{ padding: '0.5rem 1.25rem', marginBottom: '0' }}
-                    >
-                      Single Rooms
-                    </button>
-                    <button 
-                      className={`floor-tab ${roomTypeFilter === 'sharing' ? 'active' : ''}`}
-                      onClick={() => setRoomTypeFilter(prev => prev === 'sharing' ? 'all' : 'sharing')}
-                      style={{ padding: '0.5rem 1.25rem', marginBottom: '0' }}
-                    >
-                      Sharing Rooms
-                    </button>
+                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingRight: '1.25rem' }}>
+                  <FloorTabs activeFloor={activeFloor} onFloorChange={setActiveFloor} />
+                  <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.4rem' }}>
+                    <FilterDropdown filterMode={filterMode} setFilterMode={setFilterMode} />
                   </div>
                 </div>
                 <div className="room-grid-container">
                   <FloorRoomGrid
                     floorData={displayGrouped[activeFloor]}
                     onStudentClick={null}
-                    absenteesFilter={false}
+                    absenteesFilter={filterMode === 'absentees'}
                     searchQuery={searchQuery}
-                    readOnly
-                    roomTypeFilter={roomTypeFilter}
+                    roomTypeFilter={filterMode === 'single' ? 'single' : filterMode === 'sharing' ? 'sharing' : 'all'}
                   />
                 </div>
               </>
@@ -260,21 +321,8 @@ export default function Dashboard() {
         <div className="dashboard-main">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingRight: '1.25rem' }}>
             <FloorTabs activeFloor={activeFloor} onFloorChange={setActiveFloor} disabled={loading} />
-            <div style={{ display: 'flex', gap: '0.25rem', paddingBottom: '0.5rem' }}>
-              <button 
-                className={`floor-tab ${roomTypeFilter === 'single' ? 'active' : ''}`}
-                onClick={() => setRoomTypeFilter(prev => prev === 'single' ? 'all' : 'single')}
-                disabled={loading}
-              >
-                Single Rooms
-              </button>
-              <button 
-                className={`floor-tab ${roomTypeFilter === 'sharing' ? 'active' : ''}`}
-                onClick={() => setRoomTypeFilter(prev => prev === 'sharing' ? 'all' : 'sharing')}
-                disabled={loading}
-              >
-                Sharing Rooms
-              </button>
+            <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.4rem' }}>
+              <FilterDropdown filterMode={filterMode} setFilterMode={setFilterMode} disabled={loading} />
             </div>
           </div>
 
@@ -294,10 +342,10 @@ export default function Dashboard() {
                 <FloorRoomGrid
                   floorData={grouped[activeFloor]}
                   onStudentClick={handleStudentClick}
-                  absenteesFilter={absenteesFilter}
+                  absenteesFilter={filterMode === 'absentees'}
                   searchQuery={searchQuery}
                   readOnly={false}
-                  roomTypeFilter={roomTypeFilter}
+                  roomTypeFilter={filterMode === 'single' ? 'single' : filterMode === 'sharing' ? 'sharing' : 'all'}
                 />
               )}
             </div>

@@ -36,8 +36,7 @@ export default function ProfilePage() {
     <div style={{ minHeight: '100vh', background: 'var(--gray-bg)' }}>
       {/* Top bar */}
       <nav className="navbar">
-        <div style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.15)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🏠</div>
-        <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Hostel Attendance</span>
+        <span style={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 500, fontSize: '1rem', whiteSpace: 'nowrap' }}>Hostel Attendance</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
           <Link to="/dashboard" style={{ textDecoration: 'none' }}>
             <button className="btn-icon" style={{ color: 'rgba(255,255,255,0.75)' }}>← Dashboard</button>
