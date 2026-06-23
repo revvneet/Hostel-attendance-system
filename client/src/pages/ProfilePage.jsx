@@ -36,7 +36,17 @@ export default function ProfilePage() {
     <div style={{ minHeight: '100vh', background: 'var(--gray-bg)' }}>
       {/* Top bar */}
       <nav className="navbar">
-        <span style={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 500, fontSize: '1rem', whiteSpace: 'nowrap' }}>Hostel Attendance</span>
+        <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
+          <img
+            src="/amity-logo.png"
+            alt="Amity Logo"
+            style={{ height: '39px', width: 'auto', objectFit: 'contain' }}
+          />
+          <div style={{ width: '1.5px', height: '26px', background: 'rgba(255, 255, 255, 0.4)', margin: '0 0.8rem' }} />
+          <span style={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 500, fontSize: '1.05rem', whiteSpace: 'nowrap' }}>
+            Hostel Attendance
+          </span>
+        </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
           <Link to="/dashboard" style={{ textDecoration: 'none' }}>
             <button className="btn-icon" style={{ color: 'rgba(255,255,255,0.75)' }}>← Dashboard</button>

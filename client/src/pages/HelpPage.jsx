@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 const contacts = [
   {
@@ -63,22 +61,24 @@ export default function HelpPage() {
 }
 
 function TopBar() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
   return (
     <nav className="navbar">
-      <div style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.15)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>🏠</div>
-      <span style={{ color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Hostel Attendance</span>
+      {/* Brand (Logo + Text) */}
+      <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
+        <img
+          src="/amity-logo.png"
+          alt="Amity Logo"
+          style={{ height: '39px', width: 'auto', objectFit: 'contain' }}
+        />
+        <div style={{ width: '1.5px', height: '26px', background: 'rgba(255, 255, 255, 0.4)', margin: '0 0.8rem' }} />
+        <span style={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 500, fontSize: '1.05rem', whiteSpace: 'nowrap' }}>
+          Hostel Attendance
+        </span>
+      </div>
       <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
         <Link to="/dashboard" style={{ textDecoration: 'none' }}>
           <button className="btn-icon" style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8rem', gap: '0.35rem' }}>← Dashboard</button>
         </Link>
-        <button className="btn-icon" onClick={() => { logout(); navigate('/login'); }} title="Logout">
-          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-        </button>
       </div>
     </nav>
   );

@@ -695,8 +695,8 @@ body,
 }
 
 .history-date-item.active {
-  background: var(--navy);
-  color: var(--white);
+  background: var(--heading);
+  color: var(--card-bg);
 }
 
 .history-content {

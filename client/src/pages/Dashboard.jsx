@@ -102,19 +102,27 @@ function FloorRoomGrid({ floorData, onStudentClick, absenteesFilter, searchQuery
 }
 
 // ── Filter Dropdown ─────────────────────────────────────────
-const FilterDropdown = ({ filterMode, setFilterMode, disabled }) => {
+const FilterDropdown = ({ absenteesFilter, setAbsenteesFilter, roomTypeFilter, setRoomTypeFilter, disabled }) => {
   const [open, setOpen] = useState(false);
-  const options = [
-    { value: 'all', label: 'All Rooms' },
-    { value: 'absentees', label: 'Absentees' },
-    { value: 'single', label: 'Single Rooms' },
-    { value: 'sharing', label: 'Sharing Rooms' }
-  ];
+  const hasActiveFilter = absenteesFilter || roomTypeFilter !== 'all';
+
+  const handleClear = (e) => {
+    e.stopPropagation();
+    setAbsenteesFilter(false);
+    setRoomTypeFilter('all');
+  };
 
   return (
     <div style={{ position: 'relative' }}>
-      <button 
-        style={{ width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--border)', background: 'var(--card-bg)', borderRadius: '8px', cursor: disabled ? 'not-allowed' : 'pointer', color: filterMode !== 'all' ? 'var(--heading)' : 'var(--muted)', opacity: disabled ? 0.6 : 1 }}
+      <button
+        style={{
+          width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          border: '1.5px solid', borderColor: hasActiveFilter ? 'var(--heading)' : 'var(--border)',
+          background: hasActiveFilter ? 'var(--navy)' : 'var(--card-bg)',
+          borderRadius: '8px', cursor: disabled ? 'not-allowed' : 'pointer',
+          color: hasActiveFilter ? '#fff' : 'var(--muted)',
+          opacity: disabled ? 0.6 : 1, transition: 'all 0.18s'
+        }}
         onClick={() => !disabled && setOpen(!open)}
         title="Filter Options"
       >
@@ -128,29 +136,101 @@ const FilterDropdown = ({ filterMode, setFilterMode, disabled }) => {
           </svg>
         )}
       </button>
-      
+
       {open && <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setOpen(false)} />}
-      
-      <div style={{ 
-        position: 'absolute', top: '100%', right: 0, marginTop: '4px', background: 'var(--card-bg)', 
-        border: '1.5px solid var(--border)', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', 
-        zIndex: 20, minWidth: '150px', overflow: 'hidden',
+
+      <div style={{
+        position: 'absolute', top: 'calc(100% + 6px)', right: 0,
+        background: 'var(--card-bg)', border: '1.5px solid var(--border)',
+        borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+        zIndex: 20, width: '300px', overflow: 'hidden',
         opacity: open ? 1 : 0,
         visibility: open ? 'visible' : 'hidden',
-        transform: open ? 'translateY(0)' : 'translateY(-10px)',
-        transition: 'all 0.2s ease-in-out'
+        transform: open ? 'translateY(0) scale(1)' : 'translateY(-8px) scale(0.97)',
+        transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        transformOrigin: 'top right'
       }}>
-        {options.map((opt, i) => (
-          <div 
-            key={opt.value}
-            style={{ padding: '0.75rem 1rem', cursor: 'pointer', fontSize: '0.875rem', fontWeight: filterMode === opt.value ? 600 : 400, color: filterMode === opt.value ? 'var(--heading)' : 'var(--text)', background: filterMode === opt.value ? 'var(--hover-bg)' : 'transparent', borderBottom: i < options.length - 1 ? '1px solid var(--border)' : 'none' }}
-            onClick={() => { setFilterMode(opt.value); setOpen(false); }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--hover-bg)'}
-            onMouseLeave={e => e.currentTarget.style.background = filterMode === opt.value ? 'var(--hover-bg)' : 'transparent'}
-          >
-            {opt.label}
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem 0.5rem' }}>
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Filters</span>
+          {hasActiveFilter && (
+            <button
+              onClick={handleClear}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, color: 'var(--red)', padding: '0.1rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--red-bg)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+
+        {/* Two-column body */}
+        <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', borderTop: '1px solid var(--border)' }}>
+
+          {/* Left column — category labels */}
+          <div style={{ borderRight: '1px solid var(--border)', background: 'var(--gray-bg)' }}>
+            <div style={{
+              padding: '1rem 1rem',
+              fontSize: '0.8rem', fontWeight: 600, color: absenteesFilter ? 'var(--heading)' : 'var(--muted)',
+              borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', minHeight: '56px'
+            }}>Availability</div>
+            <div style={{
+              padding: '1rem 1rem',
+              fontSize: '0.8rem', fontWeight: 600, color: roomTypeFilter !== 'all' ? 'var(--heading)' : 'var(--muted)',
+              display: 'flex', alignItems: 'center', minHeight: '100px'
+            }}>Room Type</div>
           </div>
-        ))}
+
+          {/* Right column — controls */}
+          <div>
+            {/* Availability — checkbox */}
+            <div style={{ padding: '0 1rem', borderBottom: '1px solid var(--border)', minHeight: '56px', display: 'flex', alignItems: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text)', fontWeight: absenteesFilter ? 600 : 400 }}>
+                Absentees
+                <div
+                  onClick={() => setAbsenteesFilter(v => !v)}
+                  style={{
+                    width: '18px', height: '18px', borderRadius: '5px', border: '2px solid',
+                    borderColor: absenteesFilter ? 'var(--heading)' : 'var(--border)',
+                    background: absenteesFilter ? 'var(--heading)' : 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0
+                  }}
+                >
+                  {absenteesFilter && (
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                      <polyline points="2,6 5,9 10,3" stroke="var(--card-bg)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </label>
+            </div>
+
+            {/* Room type — radio buttons */}
+            <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1rem', minHeight: '100px' }}>
+              {[{ value: 'sharing', label: 'Sharing room' }, { value: 'single', label: 'Single room' }].map(opt => (
+                <label
+                  key={opt.value}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.85rem', color: 'var(--text)', fontWeight: roomTypeFilter === opt.value ? 600 : 400 }}
+                  onClick={() => setRoomTypeFilter(v => v === opt.value ? 'all' : opt.value)}
+                >
+                  {opt.label}
+                  <div style={{
+                    width: '18px', height: '18px', borderRadius: '50%', border: '2px solid',
+                    borderColor: roomTypeFilter === opt.value ? 'var(--heading)' : 'var(--border)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0, transition: 'all 0.15s'
+                  }}>
+                    {roomTypeFilter === opt.value && (
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--heading)' }} />
+                    )}
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -160,7 +240,8 @@ const FilterDropdown = ({ filterMode, setFilterMode, disabled }) => {
 export default function Dashboard() {
   const [activeFloor, setActiveFloor] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterMode, setFilterMode] = useState('all');
+  const [absenteesFilter, setAbsenteesFilter] = useState(false);
+  const [roomTypeFilter, setRoomTypeFilter] = useState('all');
   const [historyMode, setHistoryMode] = useState(false);
   const [selectedHistoryDate, setSelectedHistoryDate] = useState(null);
   const [historyGrouped, setHistoryGrouped] = useState({});
@@ -239,7 +320,8 @@ export default function Dashboard() {
   const handleHistoryToggle = useCallback(() => {
     setHistoryMode(h => !h);
     setSearchQuery('');
-    setFilterMode('all');
+    setAbsenteesFilter(false);
+    setRoomTypeFilter('all');
   }, []);
 
   // ── Current data to display ───────────────────────────────
@@ -300,16 +382,16 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingRight: '1.25rem' }}>
                   <FloorTabs activeFloor={activeFloor} onFloorChange={setActiveFloor} />
                   <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.4rem' }}>
-                    <FilterDropdown filterMode={filterMode} setFilterMode={setFilterMode} />
+                    <FilterDropdown absenteesFilter={absenteesFilter} setAbsenteesFilter={setAbsenteesFilter} roomTypeFilter={roomTypeFilter} setRoomTypeFilter={setRoomTypeFilter} />
                   </div>
                 </div>
                 <div className="room-grid-container">
                   <FloorRoomGrid
                     floorData={displayGrouped[activeFloor]}
                     onStudentClick={null}
-                    absenteesFilter={filterMode === 'absentees'}
+                    absenteesFilter={absenteesFilter}
                     searchQuery={searchQuery}
-                    roomTypeFilter={filterMode === 'single' ? 'single' : filterMode === 'sharing' ? 'sharing' : 'all'}
+                    roomTypeFilter={roomTypeFilter}
                   />
                 </div>
               </>
@@ -322,7 +404,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingRight: '1.25rem' }}>
             <FloorTabs activeFloor={activeFloor} onFloorChange={setActiveFloor} disabled={loading} />
             <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.4rem' }}>
-              <FilterDropdown filterMode={filterMode} setFilterMode={setFilterMode} disabled={loading} />
+              <FilterDropdown absenteesFilter={absenteesFilter} setAbsenteesFilter={setAbsenteesFilter} roomTypeFilter={roomTypeFilter} setRoomTypeFilter={setRoomTypeFilter} disabled={loading} />
             </div>
           </div>
 
@@ -342,10 +424,10 @@ export default function Dashboard() {
                 <FloorRoomGrid
                   floorData={grouped[activeFloor]}
                   onStudentClick={handleStudentClick}
-                  absenteesFilter={filterMode === 'absentees'}
+                  absenteesFilter={absenteesFilter}
                   searchQuery={searchQuery}
                   readOnly={false}
-                  roomTypeFilter={filterMode === 'single' ? 'single' : filterMode === 'sharing' ? 'sharing' : 'all'}
+                  roomTypeFilter={roomTypeFilter}
                 />
               )}
             </div>

@@ -67,13 +67,17 @@ export default function Navbar({
 
   return (
     <nav className="navbar">
-      {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', marginRight: '0.5rem' }}>
+      {/* Brand (Logo + Text) */}
+      <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
         <img
           src="/amity-logo.png"
           alt="Amity Logo"
           style={{ height: '39px', width: 'auto', objectFit: 'contain' }}
         />
+        <div style={{ width: '1.5px', height: '26px', background: 'rgba(255, 255, 255, 0.4)', margin: '0 0.8rem' }} />
+        <span style={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: '1.05rem', whiteSpace: 'nowrap' }}>
+          HOSTEL ATTENDANCE
+        </span>
       </div>
 
       {/* Search */}
@@ -98,14 +102,6 @@ export default function Navbar({
         {historyMode ? <BackArrowIcon /> : <CalendarIcon />}
       </button>
 
-
-
-      {/* App name / logo */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <span style={{ color: '#fff', fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: '1rem', whiteSpace: 'nowrap' }}>
-          HOSTEL ATTENDANCE
-        </span>
-      </div>
 
       {/* Theme Toggle */}
       <button className="btn-icon" onClick={toggleTheme} title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'} id="btn-theme-toggle">
