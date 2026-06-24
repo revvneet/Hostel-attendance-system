@@ -103,9 +103,17 @@ export default function ProfilePage() {
           </span>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-          <Link to="/dashboard" style={{ textDecoration: 'none' }}>
-            <button className="btn-icon" style={{ color: 'rgba(255,255,255,0.75)' }}>← Dashboard</button>
-          </Link>
+          <button 
+            className="btn-icon" 
+            style={{ color: 'rgba(255,255,255,0.75)' }} 
+            onClick={() => navigate(-1)}
+            title="Go Back"
+          >
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
         </div>
       </nav>
 

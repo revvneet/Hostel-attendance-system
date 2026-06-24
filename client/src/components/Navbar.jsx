@@ -61,6 +61,8 @@ const MoonIcon = ({ size = 16 }) => (
 export default function Navbar({
   searchQuery, onSearchChange,
   historyMode, onHistoryToggle,
+  hideSearch = false,
+  hideHistory = false,
 }) {
   const { user } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
@@ -91,26 +93,30 @@ export default function Navbar({
       </div>
 
       {/* Search */}
-      <div className="search-wrap">
-        <SearchIcon />
-        <input
-          id="search-input"
-          type="text"
-          placeholder="Search student or room…"
-          value={searchQuery}
-          onChange={e => onSearchChange(e.target.value)}
-        />
-      </div>
+      {!hideSearch && (
+        <div className="search-wrap">
+          <SearchIcon />
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Search student or room…"
+            value={searchQuery}
+            onChange={e => onSearchChange(e.target.value)}
+          />
+        </div>
+      )}
 
       {/* Calendar toggle */}
-      <button
-        className="btn-icon"
-        onClick={onHistoryToggle}
-        title={historyMode ? 'Back to Dashboard' : 'View History'}
-        id="btn-history-toggle"
-      >
-        {historyMode ? <BackArrowIcon /> : <CalendarIcon />}
-      </button>
+      {!hideHistory && (
+        <button
+          className="btn-icon"
+          onClick={onHistoryToggle}
+          title={historyMode ? 'Back to Dashboard' : 'View History'}
+          id="btn-history-toggle"
+        >
+          {historyMode ? <BackArrowIcon /> : <CalendarIcon />}
+        </button>
+      )}
 
 
       {/* Theme Toggle */}

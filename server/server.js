@@ -8,7 +8,9 @@ const authRoutes = require('./routes/auth.routes');
 const studentRoutes = require('./routes/student.routes');
 const attendanceRoutes = require('./routes/attendance.routes');
 const historyRoutes = require('./routes/history.routes');
+const adminRoutes = require('./routes/admin.routes');
 const authMiddleware = require('./middleware/auth.middleware');
+const adminMiddleware = require('./middleware/admin.middleware');
 
 const app = express();
 
@@ -28,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/students', authMiddleware, studentRoutes);
 app.use('/api/attendance', authMiddleware, attendanceRoutes);
 app.use('/api/history', authMiddleware, historyRoutes);
+app.use('/api/admin', authMiddleware, adminMiddleware, adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));

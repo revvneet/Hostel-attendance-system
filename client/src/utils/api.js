@@ -18,7 +18,7 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       localStorage.removeItem('hms_token');
       localStorage.removeItem('hms_user');
-      if (window.location.pathname !== '/login') {
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/adminlogin') {
         window.location.href = '/login';
       }
     }
