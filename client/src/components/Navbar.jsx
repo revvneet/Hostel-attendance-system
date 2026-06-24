@@ -65,12 +65,22 @@ export default function Navbar({
   const { user } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
 
+  const getInitials = () => {
+    if (user?.firstName && user?.lastName) return (user.firstName[0] + user.lastName[0]).toUpperCase();
+    if (user?.name) {
+      const parts = user.name.split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return parts[0][0].toUpperCase();
+    }
+    return '';
+  };
+
   return (
     <nav className="navbar">
       {/* Brand (Logo + Text) */}
       <div style={{ display: 'flex', alignItems: 'center', marginRight: 'auto' }}>
         <img
-          src="/amity-logo.png"
+          src="/favicon.png"
           alt="Amity Logo"
           style={{ height: '39px', width: 'auto', objectFit: 'contain' }}
         />
@@ -116,9 +126,30 @@ export default function Navbar({
       </Link>
 
       {/* Profile */}
-      <Link to="/profile" id="nav-profile" style={{ textDecoration: 'none' }}>
-        <button className="btn-icon" title={user?.name || 'Profile'}>
-          <UserIcon />
+      <Link to="/profile" id="nav-profile" style={{ textDecoration: 'none', marginLeft: '0.25rem' }}>
+        <button 
+          className="btn-icon" 
+          title={user?.name || 'Profile'}
+          style={{ 
+            padding: 0, 
+            width: '32px', 
+            height: '32px', 
+            borderRadius: '50%', 
+            overflow: 'hidden', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            background: user?.profilePicture ? 'transparent' : 'var(--navy)',
+            border: '1.5px solid rgba(255,255,255,0.2)'
+          }}
+        >
+          {user?.profilePicture ? (
+            <img src={user.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : getInitials() ? (
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>{getInitials()}</span>
+          ) : (
+            <UserIcon />
+          )}
         </button>
       </Link>
     </nav>

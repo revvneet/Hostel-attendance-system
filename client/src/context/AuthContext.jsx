@@ -17,6 +17,11 @@ function authReducer(state, action) {
       localStorage.removeItem('hms_token');
       localStorage.removeItem('hms_user');
       return { token: null, user: null };
+    case 'UPDATE_USER': {
+      const updatedUser = { ...state.user, ...action.updates };
+      localStorage.setItem('hms_user', JSON.stringify(updatedUser));
+      return { ...state, user: updatedUser };
+    }
     default:
       return state;
   }
@@ -27,9 +32,10 @@ export function AuthProvider({ children }) {
 
   const login = (token, user) => dispatch({ type: 'LOGIN', token, user });
   const logout = () => dispatch({ type: 'LOGOUT' });
+  const updateUser = (updates) => dispatch({ type: 'UPDATE_USER', updates });
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout }}>
+    <AuthContext.Provider value={{ ...state, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

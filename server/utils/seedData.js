@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Student = require('../models/Student');
+const AttendanceHistory = require('../models/AttendanceHistory');
 
 const FIRST_NAMES = [
   'Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Sai', 'Reyansh', 'Ayaan',
@@ -69,16 +70,60 @@ async function seed() {
     // Clear existing data
     await User.deleteMany({});
     await Student.deleteMany({});
+    await AttendanceHistory.deleteMany({});
     console.log('Cleared existing data');
 
     // Create admin user
     const passwordHash = await bcrypt.hash('hostel123', 10);
-    await User.create({ username: 'admin', passwordHash, name: 'Admin Warden', role: 'admin' });
+    await User.create({ 
+      username: 'admin', 
+      passwordHash, 
+      name: 'Admin Warden', 
+      firstName: 'Admin', 
+      lastName: 'Warden', 
+      hostelType: 'boys', 
+      role: 'admin' 
+    });
     console.log('✅ Admin user created: admin / hostel123');
 
     // Create students
-    await Student.insertMany(allStudents);
-    console.log(`✅ Seeded ${allStudents.length} students across 4 floors`);
+    const insertedStudents = await Student.insertMany(allStudents);
+    console.log(`✅ Seeded ${insertedStudents.length} students across 4 floors`);
+
+    // Create fake history for the past 5 days
+    const historyData = [];
+    const now = new Date();
+    
+    for (let i = 1; i <= 5; i++) {
+      const historyDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i));
+
+      insertedStudents.forEach(student => {
+        const rand = Math.random();
+        let status = 'present';
+        if (rand > 0.9) status = 'absent';
+        else if (rand > 0.85) status = 'leave';
+
+        let leaveStart = null;
+        let leaveEnd = null;
+        if (status === 'leave') {
+          leaveStart = new Date(historyDate);
+          leaveEnd = new Date(historyDate);
+          leaveEnd.setUTCDate(leaveEnd.getUTCDate() + 2); // 2 days leave
+        }
+
+        historyData.push({
+          studentId: student._id,
+          date: historyDate,
+          status,
+          leaveStart,
+          leaveEnd,
+          archivedAt: new Date()
+        });
+      });
+    }
+
+    await AttendanceHistory.insertMany(historyData);
+    console.log(`✅ Seeded ${historyData.length} attendance history records for the past 5 days`);
 
     console.log('\n🎉 Seed complete! Run the server and log in with:');
     console.log('   Username: admin');

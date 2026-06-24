@@ -22,7 +22,7 @@ export default function LoginPage() {
       login(res.data.token, res.data.user);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials');
+      setError('Incorrect password');
     } finally {
       setLoading(false);
     }
@@ -83,11 +83,10 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
+            {error && (
+              <p className="form-error" style={{ fontSize: '0.82rem', color: 'var(--red)', marginTop: '0.4rem', marginBottom: '0' }} id="login-error">{error}</p>
+            )}
           </div>
-
-          {error && (
-            <p className="form-error" style={{ marginBottom: '0.75rem' }} id="login-error">{error}</p>
-          )}
 
           <button
             id="btn-login"
